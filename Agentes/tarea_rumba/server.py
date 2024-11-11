@@ -1,6 +1,7 @@
 from model import RandomModel, ObstacleAgent, Trash, Charger, RandomAgent
 from mesa.visualization import CanvasGrid, BarChartModule
 from mesa.visualization import ModularServer
+import mesa 
 
 def agent_portrayal(agent):
     if agent is None: return
@@ -35,8 +36,17 @@ def agent_portrayal(agent):
     return portrayal
 
 model_params = {"N":5, "width":10, "height":10}
+canvas_element = mesa.visualization.CanvasGrid(agent_portrayal, 50, 50, 500, 500)
+model_params = {
+    # The following line is an example to showcase StaticText.
+    "title": mesa.visualization.StaticText("Parameters:"),
+    "Numero_de_agentes": mesa.visualization.Slider("Numero_de_agentes", 5, 1, 10),
+    "densidad_basura": mesa.visualization.Slider("densidad_basura", 0.4, 0.01, 1.0, 0.01),
+    "densidad_obstaculos": mesa.visualization.Slider("densidad_obstaculos", 0.2, 0.01, 1.0, 0.01),
+}
 
-grid = CanvasGrid(agent_portrayal, 10, 10, 500, 500)
+
+grid = CanvasGrid(agent_portrayal, 30, 30, 500, 500)
 
 bar_chart = BarChartModule(
     [{"Label":"Steps", "Color":"#AA0000"}], 

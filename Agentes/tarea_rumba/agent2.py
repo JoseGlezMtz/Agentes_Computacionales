@@ -19,7 +19,10 @@ class RandomAgent(Agent):
         self.state="cleaning"
 
     def Check_energy(self):
-        return self.energy > 15
+        if abs(self.charging_zones[0][0]-self.pos[0])+abs(self.charging_zones[0][1]-self.pos[1])<self.energy-5:
+            return True
+        else:
+            return self.energy > 15
     
     def go_to_charger(self):
         if self.charging_zones:
@@ -126,7 +129,7 @@ class RandomAgent(Agent):
         if len(trash_cell)>0 and self.Check_energy():
             delete_trash=self.random.choice(trash_cell)
             self.model.grid.remove_agent(delete_trash)
-            self.energy-=10
+            self.energy-=5
             self.steps_taken += 1
             self.state="cleaning"
         else:
