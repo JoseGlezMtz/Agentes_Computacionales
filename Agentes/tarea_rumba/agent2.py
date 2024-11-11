@@ -22,7 +22,7 @@ class RandomAgent(Agent):
         if abs(self.charging_zones[0][0]-self.pos[0])+abs(self.charging_zones[0][1]-self.pos[1])<self.energy-5:
             return True
         else:
-            return self.energy > 15
+            return self.energy >= 15
     
     def go_to_charger(self):
         if self.charging_zones:
@@ -34,6 +34,7 @@ class RandomAgent(Agent):
                     self.state="Charging"
                 elif self.state!="Charging":
                     self.model.grid.move_agent(self, path[1])# Move to the next position in the path
+                    self.energy-=1
                 
                 
 
@@ -80,7 +81,6 @@ class RandomAgent(Agent):
         return None
     
     def Charging(self):
-        print("Charging function")
         if self.state=="Charging":
             
             this_cell=self.model.grid.get_cell_list_contents([self.pos])
