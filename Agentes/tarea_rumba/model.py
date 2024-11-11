@@ -2,7 +2,7 @@ from mesa import Model, agent
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa import DataCollector
-from agent import RandomAgent, ObstacleAgent, Trash
+from agent2 import RandomAgent, ObstacleAgent, Trash, Charger
 
 class RandomModel(Model):
     """ 
@@ -47,15 +47,16 @@ class RandomModel(Model):
         for i in range(self.num_agents):
             pos= pos_gen(self.grid.width, self.grid.height)
             print(pos)
-            a = RandomAgent(i+1000, self, pos) 
+            a = RandomAgent(i+1000, self, pos)
+            C = Charger(i+2000, self, pos) 
             self.schedule.add(a)
-
+            self.schedule.add(C)
             
-
             while (not self.grid.is_cell_empty(pos)):
                 pos = pos_gen(self.grid.width, self.grid.height)
 
             self.grid.place_agent(a, pos)
+            self.grid.place_agent(C, pos)
         
         self.datacollector.collect(self)
 

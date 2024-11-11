@@ -1,4 +1,4 @@
-from model import RandomModel, ObstacleAgent, Trash
+from model import RandomModel, ObstacleAgent, Trash, Charger, RandomAgent
 from mesa.visualization import CanvasGrid, BarChartModule
 from mesa.visualization import ModularServer
 
@@ -9,8 +9,14 @@ def agent_portrayal(agent):
                  "Filled": "true",
                  "Layer": 1,
                  "Color": "red",
-                 "r": 0.5}
+                 "r": 0.5
+                 }
 
+    if (isinstance(agent, RandomAgent)):
+         
+         portrayal["text"]= round(agent.energy, 1)
+         portrayal["text_color"]= "black"
+        
     if (isinstance(agent, ObstacleAgent)):
         portrayal["Color"] = "grey"
         portrayal["Layer"] = 2
@@ -18,6 +24,11 @@ def agent_portrayal(agent):
     
     elif (isinstance(agent, Trash)):
         portrayal["Color"] = "blue"
+        portrayal["Layer"] = 0
+        portrayal["r"] = 0.4
+    
+    elif (isinstance(agent, Charger)):
+        portrayal["Color"] = "green"
         portrayal["Layer"] = 0
         portrayal["r"] = 0.4
 
