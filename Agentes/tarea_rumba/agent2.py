@@ -21,7 +21,10 @@ class RandomAgent(Agent):
         
 
     def Check_energy(self):
-        return abs(self.charging_zones[0][0]-self.pos[0])+abs(self.charging_zones[0][1]-self.pos[1])<self.energy-7
+        if self.energy<=0:
+            self.model.grid.remove_agent(self)
+        else:
+            return abs(self.charging_zones[0][0]-self.pos[0])+abs(self.charging_zones[0][1]-self.pos[1])<self.energy-7
             
     
     def go_to_charger(self):
@@ -35,6 +38,7 @@ class RandomAgent(Agent):
                 elif self.state!="Charging":
                     self.model.grid.move_agent(self, path[1])# Move to the next position in the path
                     self.energy-=1
+                    self.steps_taken += 1
                 
                 
 
@@ -120,6 +124,7 @@ class RandomAgent(Agent):
             self.model.grid.move_agent(self, self.random.choice(Trash_moves))
             self.state="clean"
             self.energy-=1
+            self.steps_taken += 1
             
         elif empty_moves:
             not_visited=[]
@@ -130,9 +135,11 @@ class RandomAgent(Agent):
             if not_visited:
                 self.model.grid.move_agent(self, self.random.choice(not_visited))
                 self.energy-=1
+                self.steps_taken += 1
             else:
                 self.model.grid.move_agent(self, self.random.choice(empty_moves))
                 self.energy-=1
+                self.steps_taken += 1
                 
         else:
             next_move = self.pos
@@ -146,7 +153,6 @@ class RandomAgent(Agent):
             delete_trash=self.random.choice(trash_cell)
             self.model.grid.remove_agent(delete_trash)
             self.energy-=5
-            self.steps_taken += 1
             self.state="cleaning"
             self.Matriz_recorridos[self.pos[0]][self.pos[1]]=1
         else:

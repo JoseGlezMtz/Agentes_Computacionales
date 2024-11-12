@@ -15,7 +15,7 @@ class RandomModel(Model):
         self.num_agents = Numero_de_agentes
         self.densidad_basura=densidad_basura
         self.densidad_obstaculos=densidad_obstaculos
-        
+        self.steps = 0
         self.grid = MultiGrid(width,height,torus = False) 
 
         
@@ -67,7 +67,19 @@ class RandomModel(Model):
         
         self.datacollector.collect(self)
 
+    def count_trash(self):
+        '''Tally the number of trash agents in the grid.'''
+        trash_agents = [a for a in self.schedule.agents if isinstance(a, Trash)]
+        return len(trash_agents)
+    
+    
+
     def step(self):
         '''Advance the model by one step.'''
+        self.steps += 1
         self.schedule.step()
         self.datacollector.collect(self)
+        
+        if self.steps>400:
+            self.running = False
+        
