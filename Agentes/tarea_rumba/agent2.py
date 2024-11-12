@@ -12,25 +12,25 @@ class RandomAgent(Agent):
         
         super().__init__(unique_id, model)
         self.steps_taken = 0
-        self.pos = pos
+        
         self.next_pos=[]
         self.energy=100
         self.charging_zones=[pos]
         self.state="cleaning"
+        self.Matriz_recorridos=[[0 for _ in range(self.model.grid.height)] for _ in range(self.model.grid.width)]
+        
 
     def Check_energy(self):
-        if abs(self.charging_zones[0][0]-self.pos[0])+abs(self.charging_zones[0][1]-self.pos[1])<self.energy-5:
-            return True
-        else:
-            return self.energy >= 15
+        return abs(self.charging_zones[0][0]-self.pos[0])+abs(self.charging_zones[0][1]-self.pos[1])<self.energy-7
+            
     
     def go_to_charger(self):
         if self.charging_zones:
-            Charging_station=self.random.choice(self.charging_zones)
+            Charging_station=self.charging_zones[0]
             path = self.a_star_search(self.pos, Charging_station)
             if path:
                 if self.pos==Charging_station:
-                    print("Charging")
+                   
                     self.state="Charging"
                 elif self.state!="Charging":
                     self.model.grid.move_agent(self, path[1])# Move to the next position in the path
@@ -40,6 +40,10 @@ class RandomAgent(Agent):
 
           
     def a_star_search(self, start, goal):
+        print("A*")
+        print(start)
+        print(goal)
+        
         def heuristic(a, b):
             return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
@@ -48,7 +52,7 @@ class RandomAgent(Agent):
         came_from = {}
         g_score = {start: 0}
         f_score = {start: heuristic(start, goal)}
-        border = [(x, y) for y in range(self.model.grid.height) for x in range(self.model.grid.width) if y in [0, self.model.grid.height - 1] or x in [0, self.model.grid.width - 1]]
+        
 
         while open_set:
             _, current = heapq.heappop(open_set)
@@ -63,8 +67,7 @@ class RandomAgent(Agent):
                 return path
 
             for neighbor in self.model.grid.iter_neighborhood(current, moore=True):
-                if neighbor in border:
-                    continue
+                
 
                 # Check if the neighbor cell contains an obstacle
                 cell_contents = self.model.grid.get_cell_list_contents(neighbor)
@@ -95,6 +98,7 @@ class RandomAgent(Agent):
         empty_moves = []
        
         # next_move = self.random.choice(next_moves)
+        self.Matriz_recorridos[self.pos[0]][self.pos[1]]=1
         
         for neighbor in self.model.grid.iter_neighborhood(self.pos, moore=True):
         
@@ -102,11 +106,12 @@ class RandomAgent(Agent):
             
             if not get_cont:
                 empty_moves.append(neighbor)
+                self.Matriz_recorridos[neighbor[0]][neighbor[1]]=1
                 
             elif isinstance(get_cont[0],Charger):
                 pass  
                   
-            elif isinstance(get_cont[0],Trash):
+            elif isinstance(get_cont[0],Trash) and not len(get_cont)>1:
                 Trash_moves.append(neighbor)
 
         # Now move:
@@ -115,9 +120,20 @@ class RandomAgent(Agent):
             self.model.grid.move_agent(self, self.random.choice(Trash_moves))
             self.state="clean"
             self.energy-=1
+            
         elif empty_moves:
-            self.model.grid.move_agent(self, self.random.choice(empty_moves))
-            self.energy-=1
+            not_visited=[]
+            for move in empty_moves:
+                if self.Matriz_recorridos[move[0]][move[1]]==0:
+                    not_visited.append(move)
+                    
+            if not_visited:
+                self.model.grid.move_agent(self, self.random.choice(not_visited))
+                self.energy-=1
+            else:
+                self.model.grid.move_agent(self, self.random.choice(empty_moves))
+                self.energy-=1
+                
         else:
             next_move = self.pos
             self.model.grid.move_agent(self, next_move)
@@ -132,8 +148,10 @@ class RandomAgent(Agent):
             self.energy-=5
             self.steps_taken += 1
             self.state="cleaning"
+            self.Matriz_recorridos[self.pos[0]][self.pos[1]]=1
         else:
             self.state="cleaning"
+            
 
     def step(self):
         
@@ -142,6 +160,7 @@ class RandomAgent(Agent):
             
             
         state=self.state
+        print(state)
         if state=="cleaning":
             self.Cleaning()
         elif state=="Going_to_Charger":

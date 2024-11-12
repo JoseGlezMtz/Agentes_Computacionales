@@ -31,7 +31,7 @@ def agent_portrayal(agent):
     elif (isinstance(agent, Charger)):
         portrayal["Color"] = "green"
         portrayal["Layer"] = 0
-        portrayal["r"] = 0.4
+        portrayal["r"] = 0.6
 
     return portrayal
 
